@@ -23,14 +23,19 @@
                         <div class="login-form">
                             <form method = "POST">
                                 {% csrf_token %}
+                                {% for message in messages %}
+                                {{ messages }}
+                                {% endfor %}
                             <div class="row">
                                 <div class="col-md-6">
                                     <label>E-mail / Username</label>
-                                    <input name = "username" class="form-control" type="text" placeholder="E-mail / Username">
+                                    <!--<input name = "username" class="form-control" type="text" placeholder="E-mail / Username"> -->
+                                {{form.username}}
                                 </div>
                                 <div class="col-md-6">
                                     <label>Password</label>
-                                    <input name = "password" class="form-control" type="text" placeholder="Password">
+                                   <!-- <input name = "password" class="form-control" type="text" placeholder="Password"> -->
+                                {{form.password}}
                                 </div>
                                 <div class="col-md-12">
                                     <div class="custom-control custom-checkbox">

@@ -7,6 +7,7 @@ from home.models import *
 
 from django.contrib.auth.models import User
 from django.contrib import messages,auth
+from django.core.mail import EmailMultiAlternatives
 
 
 class BaseView(View):
@@ -55,6 +56,11 @@ class categoryview(BaseView):
         self.views['category_items'] = item.objects.filter(category = cat)
 
         return render(request,'category.html',self.views)
+class brandview(BaseView):
+    def get(self,request,name):
+        cat= brand.objects.get(name=name).id
+        self.views['brand_items'] = item.objects.filter(brand = cat)
+        return render(request,'brand.html',self.views)
 
 def register(request):
     if request.method == 'POST':
@@ -85,7 +91,9 @@ def register(request):
         else:
             messages.error(request, 'the password is invalid.')
             return redirect('home:signup')
+
     return render(request,'signup.html')
+
 def signin(request):
     if request.method == "POST":
         username = request.POST['username']
@@ -95,6 +103,83 @@ def signin(request):
             auth.login(request,user)
             return redirect('/')
         else:
-            messages.error(request,'Username and password do not match.')
-            return redirect('home:login')
+            messages.error(request, 'the password is invalid.')
+            return redirect('home:signin')
     return render(request,'signin.html')
+
+class viewcart(BaseView):
+    def get(self,request):
+        self.views['carts'] = cart.objects.filter(user = request.user.username)
+        return render(request,'cart.html',self.views)
+
+def cart1(request, slug):
+    if cart.objects.filter(slug = slug,user = request.user.username).exists():
+        quantity = cart.objects.get(slug = slug,user = request.user.username).quantity
+        quantity = quantity + 1
+        price = item.objects.get(slug = slug).price
+        discounted_price = item.objects.get(slug=slug).discounted_price
+        if discounted_price > 0:
+            total = discounted_price*quantity
+        else:
+            total = price * quantity
+
+        cart.objects.filter(slug = slug).update(quantity =quantity,total= total)
+    else:
+        price = item.objects.get(slug=slug).price
+        discounted_price = item.objects.get(slug=slug).discounted_price
+        if discounted_price > 0:
+            total = discounted_price
+        else:
+            total = price
+
+        data = cart.objects.create(
+            user = request.user.username,
+            slug = slug,
+            item = item.objects.filter(slug = slug)[0],
+            total = total
+        )
+        data.save()
+    return redirect('home:cart')
+
+def deletecart(request,slug):
+    if cart.objects.filter(slug=slug, user=request.user.username).exists():
+        cart.objects.filter(slug=slug, user=request.user.username).delete()
+        messages.success(request,'The item is deleted')
+    return redirect("home:cart")
+
+
+def cartminus(request, slug):
+    if cart.objects.filter(slug=slug, user=request.user.username).exists():
+        quantity = cart.objects.get(slug=slug, user=request.user.username).quantity
+        quantity = quantity - 1
+        price = item.objects.get(slug=slug).price
+        discounted_price = item.objects.get(slug=slug).discounted_price
+        if discounted_price > 0:
+            total = discounted_price * quantity
+        else:
+            total = price * quantity
+
+        cart.objects.filter(slug=slug).update(quantity=quantity, total=total)
+    return redirect("home:cart")
+
+def contactsave(request):
+    if request.method == 'POST':
+        name = request.POST['name']
+        email = request.POST['email']
+        message = request.POST['message']
+        subject = request.POST['subject']
+        data = contact.objects.create(
+            name = name,
+            email = email,
+            message = message,
+            subject  = subject
+        )
+        data.save()
+        # messages.success("data saved sucecssfully")
+        html_content = f"<p> The customer name {name}, mail address {email} and subject {subject} have some message and the message is {message}"
+        msg = EmailMultiAlternatives(subject,message,'anmpriya@gmail.com',['anmpriya@gmail.com'])
+        msg.attach_alternative(html_content,"text/html")
+        msg.send()
+    return render(request,'contact.html')
+
+

@@ -331,7 +331,7 @@ h2 {
     height: 40px;
     padding: 0 15px;
     color: #666666;
-    border: 1px solid #FF6F61;
+    border: 1px solid #a51305;
     border-radius: 4px;
 }
 
@@ -344,12 +344,12 @@ h2 {
     padding: 0 15px;
     border: none;
     background: none;
-    color: #FF6F61;
+    color: #6b0c02;
     border-radius: 0 2px 2px 0;
 }
 
 .bottom-bar .search button:hover {
-    background: #FF6F61;
+    background: #6b0c02;
     color: #ffffff;
 }
 
@@ -364,12 +364,12 @@ h2 {
 
 .bottom-bar .user .cart i,
 .bottom-bar .user .wishlist i {
-    color: #FF6F61;
+    color: #6b0c02;
 }
 
 .bottom-bar .user .cart span,
 .bottom-bar .user .wishlist span {
-    color: #FF6F61;
+    color: #6b0c02;
     font-size: 15px;
 }
 
